@@ -4,6 +4,11 @@
     {
         public int Id { get; set; }
         public string Name { get; set; } = null!;
+
+        public Category(string name)
+        {
+            Name = name;
+        }
         public ICollection<ProductCategory> ProductCategories { get; set; } = new List<ProductCategory>();
     }
 }

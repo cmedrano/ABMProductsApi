@@ -1,16 +1,32 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Backend_Product;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
-using Products.Infrastructure.Data; 
+using Products.Application.Services;
+using Products.Domain.Interfaces;
+using Products.Infrastructure.Data;
+using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
 
+//builder.Services.AddDbContext<ApplicationDbContext>(options =>
+//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+
+// Configurar DB con PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Registrar AutoMapper
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+// Registrar servicios
+builder.Services.AddScoped<CategoryService>();
+
+// Registrar repositorios
+builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+
+// Registrar controladores
 builder.Services.AddControllers();
-
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
@@ -25,7 +41,6 @@ builder.Services.AddSwaggerGen(c =>
 
 var app = builder.Build();
 
-
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -33,9 +48,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

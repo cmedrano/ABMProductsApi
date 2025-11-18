@@ -20,5 +20,10 @@ namespace Products.Infrastructure.Repositories
             return await _context.Categories.ToListAsync();
         }
 
+        public async Task<Category> getCategoryByIdAsync(int id)
+        {
+            return await _context.Categories.FindAsync(id);
+        }
+
     }
 }

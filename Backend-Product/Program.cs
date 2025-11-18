@@ -1,6 +1,7 @@
 ﻿using Backend_Product;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
+using Products.Application.IServices;
 using Products.Application.Services;
 using Products.Domain.Interfaces;
 using Products.Infrastructure.Data;
@@ -21,9 +22,11 @@ builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 // Registrar servicios
 builder.Services.AddScoped<CategoryService>();
+builder.Services.AddScoped<IProductService,ProductService>();
 
 // Registrar repositorios
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
+builder.Services.AddScoped<IProductRepository,ProductRepository>();
 
 // Registrar controladores
 builder.Services.AddControllers();

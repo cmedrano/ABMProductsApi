@@ -1,6 +1,9 @@
+using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Products.Domain.Entities;    
+using Products.Application.Dtos;
+using Products.Application.IServices;
+using Products.Domain.Entities;
 using Products.Infrastructure.Data;
 using Products.Infrastructure.Persistence;
 namespace Products.Api.Controllers
@@ -9,93 +12,122 @@ namespace Products.Api.Controllers
     [Route("api/[controller]")]
     public class ProductsController : ControllerBase
     {
-        private readonly ApplicationDbContext _context;
+        private readonly IProductService _productService;
 
-        public ProductsController(ApplicationDbContext context)
+        public ProductsController(IProductService productService)
         {
-            _context = context;
+            _productService = productService;
         }
 
-       
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<Product>>> GetProducts()
+        public async Task<IActionResult> GetAllProducts()
         {
-            return await _context.Products.ToListAsync();
-        }
-
-        
-        [HttpGet("{id}")]
-        public async Task<ActionResult<Product>> GetProduct(int id)
-        {
-            var product = await _context.Products.FindAsync(id);
-
-            if (product == null)
-                return NotFound();
-
-            return product;
-        }
-
-       
-        [HttpPost]
-        public async Task<ActionResult<Product>> CreateProduct(Product product)
-        {
-            if (!ModelState.IsValid)
-            {
-                return BadRequest(ModelState);
-            }
-
-            
-            foreach (var pc in product.ProductCategories)
-            {
-                if (pc.Category != null && pc.Category.Id > 0)
-                {
-                    _context.Entry(pc.Category).State = EntityState.Unchanged;
-                }
-            }
-
-            _context.Products.Add(product);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetProduct), new { id = product.Id }, product);
-        }
-
-
-     
-        [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateProduct(int id, Product product)
-        {
-            if (id != product.Id)
-                return BadRequest();
-
-            _context.Entry(product).State = EntityState.Modified;
-
             try
             {
-                await _context.SaveChangesAsync();
+                var products = await _productService.getAllProducts();
+                return Ok(products);
             }
-            catch (DbUpdateConcurrencyException)
+            catch (Exception ex)
             {
-                if (!_context.Products.Any(e => e.Id == id))
-                    return NotFound();
-                else
-                    throw;
-            }
+                return StatusCode(500, $"Internal server error: {ex.Message}");
 
-            return NoContent();
+            }
         }
 
-       
+        [HttpGet("{id}")]
+        public async Task<IActionResult> GetProductById(int id)
+        {
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest($"The ID: {id} is invalid.");
+                }
+                var product = await _productService.getProductById(id);
+                if (product == null)
+                {
+                    return NotFound();
+                }
+                return Ok(product);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productDto)
+        {
+            try
+            {
+                if (productDto == null)
+                {
+                    return BadRequest("All fields are required");
+                }
+
+                var createdProduct = await _productService.createProduct(productDto);
+
+                return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteProduct(int id)
         {
-            var product = await _context.Products.FindAsync(id);
-            if (product == null)
-                return NotFound();
+            try
+            {
+                if (id <= 0)
+                {
+                    return BadRequest($"The ID: {id} is invalid.");
+                }
 
-            _context.Products.Remove(product);
-            await _context.SaveChangesAsync();
-
-            return NoContent();
+                await _productService.deleteProduct(id);
+                return NoContent();
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
         }
+
+        [HttpPut]
+        public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductDto productDto)
+        {
+            try
+            {
+                var updatedProduct = await _productService.updateProduct(productDto);
+                return Ok(updatedProduct);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("filter")]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
+        {
+            try
+            {
+                if (categoryId <= 0)
+                {
+                    return BadRequest($"The ID: {categoryId} is invalid.");
+                }
+
+                var products = await _productService.filterProductsByCategory(categoryId);
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
+            }
+        }
+
+
     }
 }

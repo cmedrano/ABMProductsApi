@@ -35,7 +35,7 @@ namespace Products.Infrastructure.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Categories");
+                    b.ToTable("categories");
                 });
 
             modelBuilder.Entity("Products.Domain.Entities.Product", b =>

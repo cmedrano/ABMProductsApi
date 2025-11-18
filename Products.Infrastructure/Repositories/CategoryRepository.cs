@@ -2,14 +2,15 @@
 using Products.Domain.Entities;
 using Products.Domain.Interfaces;
 using Products.Infrastructure.Context;
+using Products.Infrastructure.Data;
 
 namespace Products.Infrastructure.Repositories
 {
     public class CategoryRepository : ICategoryRepository
     {
-        private readonly ProductsDbContext _context;
+        private readonly ApplicationDbContext _context;
 
-        public CategoryRepository(ProductsDbContext context)
+        public CategoryRepository(ApplicationDbContext context)
         {
             _context = context;
         }

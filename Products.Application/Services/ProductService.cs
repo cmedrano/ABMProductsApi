@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Products.Application.Dtos;
+using Products.Application.IServices;
 using Products.Domain.Entities;
 using Products.Domain.Interfaces;
 using System;
@@ -10,89 +11,95 @@ using System.Threading.Tasks;
 
 namespace Products.Application.Services
 {
-    public class ProductService
+    public class ProductService : IProductService
     {
-        readonly IProductRepository _repository;
+        readonly IProductRepository _productRepository;
+        readonly ICategoryRepository _categoryRepository;
         readonly IMapper _mapper;
-        public ProductService(IProductRepository repository, IMapper mapper)
+        public ProductService(IMapper mapper, IProductRepository productRepository, ICategoryRepository categoryRepository)
         {
-            _repository = repository;
             _mapper = mapper;
+            _productRepository = productRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<IEnumerable<ProductDto>> getAllProducts()
         {
-            var products = await _repository.getAllProductAsync();
+            var products = await _productRepository.getAllProductAsync();
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
         public async Task<ProductDto> getProductById(int id)
         {
-            if (id <= 0)
-                throw new Exception($"El Id {id} es invalido.");
-
-            var product = await _repository.getProductByIdAsync(id);
+            var product = await _productRepository.getProductByIdAsync(id);
             return _mapper.Map<ProductDto>(product);
         }
         public async Task<ProductDto> createProduct(CreateProductDto productDto)
         {
-            if (productDto == null)
-                throw new Exception($"Todos los Campos son Obligatorio");
-
             var product = _mapper.Map<Product>(productDto);
 
-            // Manejar las categorías
+            // Manejar categorías
             foreach (var categoryId in productDto.Categories)
             {
+                var existingCategory = await _categoryRepository.getCategoryByIdAsync(categoryId);
+                if (existingCategory == null)
+                    throw new ArgumentException($"The category with ID {categoryId} does not exist.");
+
                 product.ProductCategories.Add(new ProductCategory
                 {
-                    CategoryId = categoryId.Id,
+                    CategoryId = categoryId
                 });
             }
 
-            await _repository.addProductAsync(product);
-            return _mapper.Map<ProductDto>(product);
+            await _productRepository.addProductAsync(product);
+
+            var createdProduct = await _productRepository.getProductByIdAsync(product.Id);
+            return _mapper.Map<ProductDto>(createdProduct);
+
         }
 
-        public async Task<ProductDto> updateProduct(ProductDto productDto)
+        public async Task<ProductDto> updateProduct(UpdateProductDto productDto)
         {
-            var existingProduct = await _repository.getProductByIdAsync(productDto.Id);
+            var existingProduct = await _productRepository.getProductByIdAsync(productDto.Id);
             if (existingProduct == null)
-                throw new Exception($"Producto con Id {productDto.Id} no encontrado.");
+                throw new Exception($"Product with ID:{productDto.Id} not found");
 
             _mapper.Map(productDto, existingProduct);
 
-            // Actualizar categorías si es necesario
-            if (productDto.Categories != null && productDto.Categories.Any())
+            existingProduct.ProductCategories.Clear();
+            foreach (var categoryId in productDto.Categories)
             {
-                existingProduct.ProductCategories.Clear();
-                foreach (var categoryId in productDto.Categories)
+                var existingCategory = await _categoryRepository.getCategoryByIdAsync(categoryId);
+                if (existingCategory == null)
+                    throw new ArgumentException($"The category with ID {categoryId} does not exist.");
+
+                existingProduct.ProductCategories.Add(new ProductCategory
                 {
-                    existingProduct.ProductCategories.Add(new ProductCategory
-                    {
-                        ProductId = existingProduct.Id,
-                        CategoryId = categoryId.Id,
-                    });
-                }
+                    ProductId = existingProduct.Id,
+                    CategoryId = categoryId,
+                });
             }
 
-            await _repository.updateProductAsync(existingProduct);
-            return _mapper.Map<ProductDto>(existingProduct);
+            await _productRepository.updateProductAsync(existingProduct);
+
+            // Recargar el producto con las categorías
+            var updatedProduct = await _productRepository.getProductByIdAsync(existingProduct.Id);
+            return _mapper.Map<ProductDto>(updatedProduct);
         }
 
-        public async Task<bool> DeleteProduct(int id)
+        public async Task<bool> deleteProduct(int id)
         {
-            var existingProduct = await _repository.getProductByIdAsync(id);
+            var existingProduct = await _productRepository.getProductByIdAsync(id);
             if (existingProduct == null)
                 return false;
 
-            await _repository.deleteProductAsync(id);
+            await _productRepository.deleteProductAsync(id);
             return true;
         }
 
         public async Task<IEnumerable<ProductDto>> filterProductsByCategory(int categoryId)
         {
-            var products = await _repository.filterProductsByCategoryAsync(categoryId);
+            var products = await _productRepository.filterProductsByCategoryAsync(categoryId);
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 

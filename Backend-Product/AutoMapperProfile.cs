@@ -20,12 +20,12 @@ namespace Backend_Product
             CreateMap<CreateProductDto, Product>()
                 .ForMember(dest => dest.ProductCategories, opt => opt.Ignore());
 
+            CreateMap<UpdateProductDto, Product>()
+                .ForMember(dest => dest.ProductCategories, opt => opt.Ignore());
+
             CreateMap<Category, CategoryDto>();// Mapeo de Category a CategoryDto           
             CreateMap<CategoryDto, Category>();// Mapeo de CategoryDto a Category
 
-            // Mapeo para cuando Category tiene Products
-            //CreateMap<Category, CategoryWithProductsDto>()
-            //    .ForMember(dest => dest.Products, opt => opt.MapFrom(src => src.ProductCategories.Select(pc => pc.Product)));
         }
     }
 }

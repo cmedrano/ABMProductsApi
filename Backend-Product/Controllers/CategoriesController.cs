@@ -17,7 +17,6 @@ namespace Products.Api.Controllers
             _service = handler;
         }
 
-
         [HttpGet]
         public async Task<IActionResult> GetAllCategories()
         {

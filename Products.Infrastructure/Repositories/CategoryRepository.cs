@@ -1,7 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Products.Domain.Entities;
 using Products.Domain.Interfaces;
-using Products.Infrastructure.Context;
 using Products.Infrastructure.Data;
 
 namespace Products.Infrastructure.Repositories
@@ -24,6 +23,5 @@ namespace Products.Infrastructure.Repositories
         {
             return await _context.Categories.FindAsync(id);
         }
-
     }
 }

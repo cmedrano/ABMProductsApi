@@ -19,7 +19,7 @@ namespace Products.Application.Services
             return categories.Select(c => new CategoryDto
             {
                 Id = c.Id,
-                Name = c.Name
+                Name = c.Name.Trim(),
             });
         }
     }

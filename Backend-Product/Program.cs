@@ -9,13 +9,25 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// switch connection
+var provider = builder.Configuration["DatabaseProvider"];
+var connectionString = provider switch
+{
+    "PostgreSql" => builder.Configuration.GetConnectionString("PostgreSqlConnection"),
+    _ => builder.Configuration.GetConnectionString("SqlServerConnectionLocal")
+};
 
-//builder.Services.AddDbContext<ApplicationDbContext>(options =>
-//    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-// Configurar DB con PostgreSQL
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection")));
+{
+    if (provider == "PostgreSql")
+    {
+        options.UseNpgsql(connectionString);
+    }
+    else
+    {
+        options.UseSqlServer(connectionString, sql => sql.EnableRetryOnFailure());
+    }
+});
 
 // Registrar AutoMapper
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));

@@ -14,6 +14,6 @@ namespace Products.Application.IServices
         Task<ProductDto> createProduct(CreateProductDto productDto);
         Task<ProductDto> updateProduct(UpdateProductDto productDto);
         Task<bool> deleteProduct(int id);
-        Task<IEnumerable<ProductDto>> filterProductsByCategory(int categoryId);
+        Task<IEnumerable<ProductDto>> FilterProducts(int categoryId, string productName);
     }
 }

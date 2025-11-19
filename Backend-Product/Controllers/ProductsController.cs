@@ -110,16 +110,11 @@ namespace Products.Api.Controllers
         }
 
         [HttpGet("filter")]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByCategory(int categoryId)
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByFilter([FromQuery] int categoryId, [FromQuery] string? productName)
         {
             try
             {
-                if (categoryId <= 0)
-                {
-                    return BadRequest($"The ID: {categoryId} is invalid.");
-                }
-
-                var products = await _productService.filterProductsByCategory(categoryId);
+                var products = await _productService.FilterProducts(categoryId, productName);
                 return Ok(products);
             }
             catch (Exception ex)

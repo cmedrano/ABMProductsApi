@@ -14,6 +14,6 @@ namespace Products.Domain.Interfaces
         Task addProductAsync(Product product);
         Task updateProductAsync(Product product);
         Task deleteProductAsync(int id);
-        Task<IEnumerable<Product>> filterProductsByCategoryAsync(int categoryId);
+        Task<IEnumerable<Product>> FilterProductsAsync(int categoryId, string productName);
     }
 }

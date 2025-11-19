@@ -1,13 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Products.Application.Dtos;
 using Products.Domain.Entities;
 using Products.Domain.Interfaces;
 using Products.Infrastructure.Data;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Products.Infrastructure.Repositories
 {
@@ -59,17 +53,24 @@ namespace Products.Infrastructure.Repositories
             }
         }
 
-        // Filtro por categoria
-        public async Task<IEnumerable<Product>> filterProductsByCategoryAsync(int categoryId)
+        public async Task<IEnumerable<Product>> FilterProductsAsync(int categoryId, string productName)
         {
-            var result = await _context.Products
-                                .Include(p => p.ProductCategories)
-                                .ThenInclude(pc => pc.Category)
-                                .Where(p => p.ProductCategories.Any(pc => pc.CategoryId == categoryId))
-                                .ToListAsync();
-            return result;
+            var query = _context.Products
+                        .Include(p => p.ProductCategories)
+                        .ThenInclude(pc => pc.Category)
+                        .AsQueryable();
+
+            if (categoryId > 0)
+            {
+                query = query.Where(p => p.ProductCategories.Any(pc => pc.CategoryId == categoryId));
+            }
+
+            if (!string.IsNullOrWhiteSpace(productName))
+            {
+                query = query.Where(p => p.Name.ToLower().Contains(productName.ToLower()));
+            }
+
+            return await query.ToListAsync();
         }
-
-
     }
 }

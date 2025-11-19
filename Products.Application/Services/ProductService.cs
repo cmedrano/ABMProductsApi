@@ -97,13 +97,10 @@ namespace Products.Application.Services
             return true;
         }
 
-        public async Task<IEnumerable<ProductDto>> filterProductsByCategory(int categoryId)
+        public async Task<IEnumerable<ProductDto>> FilterProducts(int categoryId, string productName)
         {
-            var products = await _productRepository.filterProductsByCategoryAsync(categoryId);
+            var products = await _productRepository.FilterProductsAsync(categoryId, productName);
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
-
-
-
     }
 }

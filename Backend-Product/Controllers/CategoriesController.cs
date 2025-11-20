@@ -1,9 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Products.Application.Dtos;
-using Products.Application.Services;
-using Products.Domain.Entities;
-using Products.Infrastructure.Data;
+using Products.Application.IServices;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Products.Api.Controllers
@@ -12,11 +9,10 @@ namespace Products.Api.Controllers
     [Route("api/[controller]")]
     public class CategoriesController : ControllerBase
     {
-        private readonly CategoryService _service;
-
-        public CategoriesController(CategoryService handler)
+        private readonly ICategoryService _categoryService;
+        public CategoriesController(ICategoryService categoryService)
         {
-            _service = handler;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -27,7 +23,7 @@ namespace Products.Api.Controllers
         {
             try
             {
-                var result = await _service.GetAll();
+                var result = await _categoryService.GetAllCategories();
                 return Ok(result);
             }
             catch (Exception ex)

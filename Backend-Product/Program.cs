@@ -34,8 +34,8 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 // Registrar servicios
-builder.Services.AddScoped<CategoryService>();
 builder.Services.AddScoped<IProductService,ProductService>();
+builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Registrar repositorios
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();

@@ -14,13 +14,16 @@ namespace Products.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Category>> GetAllAsync()
+        public async Task<IEnumerable<Category>> GetAllCategoriesAsync()
         {
             return await _context.Categories.ToListAsync();
         }
 
-        public async Task<Category> getCategoryByIdAsync(int id)
+        public async Task<Category?> GetCategoryByIdAsync(int id)
         {
+            if (id <= 0)
+                return null;
+
             return await _context.Categories.FindAsync(id);
         }
     }

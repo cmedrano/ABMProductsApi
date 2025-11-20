@@ -13,7 +13,7 @@ namespace Products.Infrastructure.Repositories
             _context = context;
         }
 
-        public async Task<IEnumerable<Product>> getAllProductAsync()
+        public async Task<IEnumerable<Product>> GetAllProductAsync()
         {
             var result = await _context.Products
                             .Include(p => p.ProductCategories)
@@ -22,7 +22,7 @@ namespace Products.Infrastructure.Repositories
             return result;
         }
 
-        public async Task<Product> getProductByIdAsync(int id)
+        public async Task<Product> GetProductByIdAsync(int id)
         {
             var result = await _context.Products
                                 .Include(p => p.ProductCategories)
@@ -31,21 +31,21 @@ namespace Products.Infrastructure.Repositories
             return result;
         }
 
-        public async Task addProductAsync(Product product)
+        public async Task AddProductAsync(Product product)
         {
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
         }
 
-        public async Task updateProductAsync(Product product)
+        public async Task UpdateProductAsync(Product product)
         {
             _context.Products.Update(product);
             await _context.SaveChangesAsync();
         }
 
-        public async Task deleteProductAsync(int id)
+        public async Task DeleteProductAsync(int id)
         {
-            var existingProduct = await getProductByIdAsync(id);
+            var existingProduct = await GetProductByIdAsync(id);
             if (existingProduct != null)
             {
                 _context.Products.Remove(existingProduct);

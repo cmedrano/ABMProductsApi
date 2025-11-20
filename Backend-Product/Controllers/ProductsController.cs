@@ -6,6 +6,7 @@ using Products.Application.IServices;
 using Products.Domain.Entities;
 using Products.Infrastructure.Data;
 using Products.Infrastructure.Persistence;
+using Swashbuckle.AspNetCore.Annotations;
 namespace Products.Api.Controllers
 {
     [ApiController]
@@ -20,6 +21,9 @@ namespace Products.Api.Controllers
         }
 
         [HttpGet]
+        [SwaggerOperation (Summary = "Get all products", Description = "Retrieve a list of all products")]
+        [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetAllProducts()
         {
             try
@@ -35,6 +39,11 @@ namespace Products.Api.Controllers
         }
 
         [HttpGet("{id}")]
+        [SwaggerOperation (Summary = "Get product by ID", Description = "Retrieve a specific product by its ID")]
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]  
         public async Task<IActionResult> GetProductById(int id)
         {
             try
@@ -57,6 +66,10 @@ namespace Products.Api.Controllers
         }
 
         [HttpPost]
+        [SwaggerOperation (Summary = "Create a new product", Description = "Create a new product with the provided details")]
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status201Created)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateProduct([FromBody] CreateProductDto productDto)
         {
             try
@@ -77,6 +90,11 @@ namespace Products.Api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [SwaggerOperation (Summary = "Delete a product", Description = "Delete a specific product by its ID")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+
         public async Task<IActionResult> DeleteProduct(int id)
         {
             try
@@ -96,6 +114,9 @@ namespace Products.Api.Controllers
         }
 
         [HttpPut]
+        [SwaggerOperation (Summary = "Update a product", Description = "Update the details of an existing product")]
+        [ProducesResponseType(typeof(ProductDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UpdateProduct([FromBody] UpdateProductDto productDto)
         {
             try
@@ -110,6 +131,9 @@ namespace Products.Api.Controllers
         }
 
         [HttpGet("filter")]
+        [SwaggerOperation (Summary = "Filter products", Description = "Retrieve products based on category ID and optional product name")]
+        [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByFilter([FromQuery] int categoryId, [FromQuery] string? productName)
         {
             try

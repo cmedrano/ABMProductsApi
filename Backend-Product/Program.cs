@@ -1,5 +1,6 @@
 ﻿using Backend_Product;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi;
 using Microsoft.OpenApi.Models;
 using Products.Application.IServices;
 using Products.Application.Services;
@@ -52,6 +53,8 @@ builder.Services.AddSwaggerGen(c =>
         Version = "v1",
         Description = "API para la gestión de productos (DDD + EF Core)"
     });
+
+    c.EnableAnnotations(); // Habilitar anotaciones (Documentacion en el Swagger)
 });
 
 // CORS

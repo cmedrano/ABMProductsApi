@@ -1,26 +1,25 @@
-﻿using Products.Application.Dtos;
+﻿using AutoMapper;
+using Products.Application.Dtos;
+using Products.Application.IServices;
 using Products.Domain.Interfaces;
 
 namespace Products.Application.Services
 {
-    public class CategoryService
+    public class CategoryService : ICategoryService
     {
-        private readonly ICategoryRepository _repo;
+        private readonly ICategoryRepository _categoryRepository;
+        readonly IMapper _mapper;
 
-        public CategoryService(ICategoryRepository repo)
+        public CategoryService(ICategoryRepository categoryRepository, IMapper mapper)
         {
-            _repo = repo;
+            _categoryRepository = categoryRepository;
+            _mapper = mapper;
         }
 
-        public async Task<IEnumerable<CategoryDto>> GetAll()
+        public async Task<IEnumerable<CategoryDto>> GetAllCategories()
         {
-            var categories = await _repo.GetAllAsync();
-
-            return categories.Select(c => new CategoryDto
-            {
-                Id = c.Id,
-                Name = c.Name.Trim(),
-            });
+            var categories = await _categoryRepository.GetAllCategoriesAsync();
+            return _mapper.Map<IEnumerable<CategoryDto>>(categories);
         }
     }
 }

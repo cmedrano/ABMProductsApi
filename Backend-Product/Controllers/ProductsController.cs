@@ -1,11 +1,6 @@
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Products.Application.Dtos;
 using Products.Application.IServices;
-using Products.Domain.Entities;
-using Products.Infrastructure.Data;
-using Products.Infrastructure.Persistence;
 using Swashbuckle.AspNetCore.Annotations;
 namespace Products.Api.Controllers
 {
@@ -28,13 +23,12 @@ namespace Products.Api.Controllers
         {
             try
             {
-                var products = await _productService.getAllProducts();
+                var products = await _productService.GetAllProducts();
                 return Ok(products);
             }
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
-
             }
         }
 
@@ -52,7 +46,7 @@ namespace Products.Api.Controllers
                 {
                     return BadRequest($"The ID: {id} is invalid.");
                 }
-                var product = await _productService.getProductById(id);
+                var product = await _productService.GetProductById(id);
                 if (product == null)
                 {
                     return NotFound();
@@ -62,6 +56,23 @@ namespace Products.Api.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, $"Internal server error: {ex.Message}");
+            }
+        }
+
+        [HttpGet("filter")]
+        [SwaggerOperation(Summary = "Filter products", Description = "Retrieve products based on category ID and optional product name")]
+        [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByFilter([FromQuery] int categoryId, string? productName)
+        {
+            try
+            {
+                var products = await _productService.FilterProducts(categoryId, productName);
+                return Ok(products);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
             }
         }
 
@@ -79,7 +90,7 @@ namespace Products.Api.Controllers
                     return BadRequest("All fields are required");
                 }
 
-                var createdProduct = await _productService.createProduct(productDto);
+                var createdProduct = await _productService.CreateProduct(productDto);
 
                 return CreatedAtAction(nameof(GetProductById), new { id = createdProduct.Id }, createdProduct);
             }
@@ -104,7 +115,7 @@ namespace Products.Api.Controllers
                     return BadRequest($"The ID: {id} is invalid.");
                 }
 
-                await _productService.deleteProduct(id);
+                await _productService.DeleteProduct(id);
                 return NoContent();
             }
             catch (Exception ex)
@@ -121,7 +132,7 @@ namespace Products.Api.Controllers
         {
             try
             {
-                var updatedProduct = await _productService.updateProduct(productDto);
+                var updatedProduct = await _productService.UpdateProduct(productDto);
                 return Ok(updatedProduct);
             }
             catch (Exception ex)
@@ -129,24 +140,5 @@ namespace Products.Api.Controllers
                 return StatusCode(500, $"Internal server error: {ex.Message}");
             }
         }
-
-        [HttpGet("filter")]
-        [SwaggerOperation (Summary = "Filter products", Description = "Retrieve products based on category ID and optional product name")]
-        [ProducesResponseType(typeof(IEnumerable<ProductDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(ProblemDetails), StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<IEnumerable<ProductDto>>> GetProductsByFilter([FromQuery] int categoryId, [FromQuery] string? productName)
-        {
-            try
-            {
-                var products = await _productService.FilterProducts(categoryId, productName);
-                return Ok(products);
-            }
-            catch (Exception ex)
-            {
-                return StatusCode(500, $"Error interno del servidor: {ex.Message}");
-            }
-        }
-
-
     }
 }

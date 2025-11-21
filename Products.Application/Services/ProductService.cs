@@ -3,11 +3,6 @@ using Products.Application.Dtos;
 using Products.Application.IServices;
 using Products.Domain.Entities;
 using Products.Domain.Interfaces;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Products.Application.Services
 {
@@ -23,25 +18,25 @@ namespace Products.Application.Services
             _categoryRepository = categoryRepository;
         }
 
-        public async Task<IEnumerable<ProductDto>> getAllProducts()
+        public async Task<IEnumerable<ProductDto>> GetAllProducts()
         {
-            var products = await _productRepository.getAllProductAsync();
+            var products = await _productRepository.GetAllProductAsync();
             return _mapper.Map<IEnumerable<ProductDto>>(products);
         }
 
-        public async Task<ProductDto> getProductById(int id)
+        public async Task<ProductDto> GetProductById(int id)
         {
-            var product = await _productRepository.getProductByIdAsync(id);
+            var product = await _productRepository.GetProductByIdAsync(id);
             return _mapper.Map<ProductDto>(product);
         }
-        public async Task<ProductDto> createProduct(CreateProductDto productDto)
+        public async Task<ProductDto> CreateProduct(CreateProductDto productDto)
         {
             var product = _mapper.Map<Product>(productDto);
 
             // Manejar categorías
             foreach (var categoryId in productDto.Categories)
             {
-                var existingCategory = await _categoryRepository.getCategoryByIdAsync(categoryId);
+                var existingCategory = await _categoryRepository.GetCategoryByIdAsync(categoryId);
                 if (existingCategory == null)
                     throw new ArgumentException($"The category with ID {categoryId} does not exist.");
 
@@ -51,16 +46,16 @@ namespace Products.Application.Services
                 });
             }
 
-            await _productRepository.addProductAsync(product);
+            await _productRepository.AddProductAsync(product);
 
-            var createdProduct = await _productRepository.getProductByIdAsync(product.Id);
+            var createdProduct = await _productRepository.GetProductByIdAsync(product.Id);
             return _mapper.Map<ProductDto>(createdProduct);
 
         }
 
-        public async Task<ProductDto> updateProduct(UpdateProductDto productDto)
+        public async Task<ProductDto> UpdateProduct(UpdateProductDto productDto)
         {
-            var existingProduct = await _productRepository.getProductByIdAsync(productDto.Id);
+            var existingProduct = await _productRepository.GetProductByIdAsync(productDto.Id);
             if (existingProduct == null)
                 throw new Exception($"Product with ID:{productDto.Id} not found");
 
@@ -69,7 +64,7 @@ namespace Products.Application.Services
             existingProduct.ProductCategories.Clear();
             foreach (var categoryId in productDto.Categories)
             {
-                var existingCategory = await _categoryRepository.getCategoryByIdAsync(categoryId);
+                var existingCategory = await _categoryRepository.GetCategoryByIdAsync(categoryId);
                 if (existingCategory == null)
                     throw new ArgumentException($"The category with ID {categoryId} does not exist.");
 
@@ -80,20 +75,20 @@ namespace Products.Application.Services
                 });
             }
 
-            await _productRepository.updateProductAsync(existingProduct);
+            await _productRepository.UpdateProductAsync(existingProduct);
 
             // Recargar el producto con las categorías
-            var updatedProduct = await _productRepository.getProductByIdAsync(existingProduct.Id);
+            var updatedProduct = await _productRepository.GetProductByIdAsync(existingProduct.Id);
             return _mapper.Map<ProductDto>(updatedProduct);
         }
 
-        public async Task<bool> deleteProduct(int id)
+        public async Task<bool> DeleteProduct(int id)
         {
-            var existingProduct = await _productRepository.getProductByIdAsync(id);
+            var existingProduct = await _productRepository.GetProductByIdAsync(id);
             if (existingProduct == null)
                 return false;
 
-            await _productRepository.deleteProductAsync(id);
+            await _productRepository.DeleteProductAsync(id);
             return true;
         }
 

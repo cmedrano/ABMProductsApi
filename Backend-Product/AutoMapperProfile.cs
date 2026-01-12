@@ -8,6 +8,12 @@ namespace Backend_Product
     {
         public AutoMapperProfile()
         {
+            // Mapeo de Client a ClientDto
+            CreateMap<Client, ClientDto>();
+            CreateMap<ClientDto, Client>();
+            CreateMap<CreateClientDto, Client>();
+            CreateMap<UpdateClientDto, Client>();
+
             // Mapeo de Product a ProductDto
             CreateMap<Product, ProductDto>()
                 .ForMember(dest => dest.Categories, opt => opt.MapFrom(src => src.ProductCategories.Select(pc => pc.Category)));

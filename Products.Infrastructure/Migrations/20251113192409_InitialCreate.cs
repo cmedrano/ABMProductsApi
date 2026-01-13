@@ -50,13 +50,13 @@ namespace Products.Infrastructure.Migrations
                         name: "FK_ProductCategories_Categories_CategoryId",
                         column: x => x.CategoryId,
                         principalTable: "Categories",
-                        principalColumn: "Id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_ProductCategories_Products_ProductId",
                         column: x => x.ProductId,
                         principalTable: "Products",
-                        principalColumn: "Id",
+                        principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 

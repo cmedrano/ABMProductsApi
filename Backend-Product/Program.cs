@@ -34,10 +34,12 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 // Registrar servicios
+builder.Services.AddScoped<IClientService, ClientService>();
 builder.Services.AddScoped<IProductService,ProductService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
 
 // Registrar repositorios
+builder.Services.AddScoped<IClientRepository,ClientRepository>();
 builder.Services.AddScoped<ICategoryRepository,CategoryRepository>();
 builder.Services.AddScoped<IProductRepository,ProductRepository>();
 

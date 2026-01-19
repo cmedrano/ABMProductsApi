@@ -10,6 +10,14 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render define PORT, local usa 5000
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
 // switch connection
 var provider = builder.Configuration["DatabaseProvider"];
 var connectionString = provider switch
@@ -59,6 +67,10 @@ builder.Services.AddSwaggerGen(c =>
     c.EnableAnnotations(); // Habilitar anotaciones (Documentacion en el Swagger)
 });
 
+var allowedOrigins = builder.Environment.IsDevelopment()
+    ? new[] { "http://localhost:4200" }
+    : new[] { "https://app.midominio.com" }; // Cloudflare Pages
+
 // CORS
 builder.Services.AddCors(options =>
 {
@@ -66,7 +78,7 @@ builder.Services.AddCors(options =>
         policy =>
         {
             policy
-                .WithOrigins("http://localhost:4200")
+                .WithOrigins(allowedOrigins)
                 .AllowAnyMethod()
                 .AllowAnyHeader()
                 .AllowCredentials();
@@ -81,9 +93,9 @@ if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+    app.UseHttpsRedirection();
 }
 
-app.UseHttpsRedirection();
 app.UseAuthorization();
 app.MapControllers();
 app.Run();

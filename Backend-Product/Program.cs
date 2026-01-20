@@ -10,13 +10,17 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Render define PORT, local usa 8080
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-builder.WebHost.ConfigureKestrel(options =>
+// En LOCAL (Development): usa launchSettings.json
+// En NUBE (Render / Docker): Render define la variable PORT y nosotros la usamos
+if (!builder.Environment.IsDevelopment())
 {
-    options.ListenAnyIP(int.Parse(port));
-});
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(int.Parse(port));
+    });
+}
 
 // switch connection
 var provider = builder.Configuration["DatabaseProvider"];
@@ -67,8 +71,9 @@ builder.Services.AddSwaggerGen(c =>
     c.EnableAnnotations(); // Habilitar anotaciones (Documentacion en el Swagger)
 });
 
+
 var allowedOrigins = builder.Environment.IsDevelopment()
-    ? new[] { "http://localhost:4200" }
+    ? new[] { "http://localhost:4200" } // Angular en local
     : new[] { "https://app.midominio.com" };
 
 builder.Services.AddCors(options =>

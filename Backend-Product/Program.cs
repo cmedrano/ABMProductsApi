@@ -10,8 +10,8 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Render define PORT, local usa 5000
-var port = Environment.GetEnvironmentVariable("PORT") ?? "5000";
+// Render define PORT, local usa 8080
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
 
 builder.WebHost.ConfigureKestrel(options =>
 {
@@ -69,30 +69,32 @@ builder.Services.AddSwaggerGen(c =>
 
 var allowedOrigins = builder.Environment.IsDevelopment()
     ? new[] { "http://localhost:4200" }
-    : new[] { "https://app.midominio.com" }; // Cloudflare Pages
+    : new[] { "https://app.midominio.com" };
 
-// CORS
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAngular",
-        policy =>
-        {
-            policy
-                .WithOrigins(allowedOrigins)
-                .AllowAnyMethod()
-                .AllowAnyHeader()
-                .AllowCredentials();
-        });
+    options.AddPolicy("AllowAngular", policy =>
+    {
+        policy.WithOrigins(allowedOrigins)
+              .AllowAnyHeader()
+              .AllowAnyMethod();
+    });
 });
 
 var app = builder.Build();
 
 app.UseCors("AllowAngular");
 
-if (app.Environment.IsDevelopment())
+// Swagger solo para desarrollo (local o nube dev)
+if (app.Environment.IsDevelopment() || app.Environment.IsEnvironment("CloudDevelopment"))
 {
     app.UseSwagger();
     app.UseSwaggerUI();
+}
+
+// HTTPS solo en local (en la nube lo maneja Cloudflare / Render)
+if (app.Environment.IsDevelopment())
+{
     app.UseHttpsRedirection();
 }
 

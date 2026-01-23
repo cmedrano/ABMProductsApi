@@ -26,16 +26,20 @@ RUN dotnet publish -c Release -o /app/publish
 # =========================
 # RUNTIME STAGE
 # =========================
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS final
 WORKDIR /app
 
-# Copiamos la salida de publish
+# Instalar herramientas útiles para debugging
+RUN apt-get update && apt-get install -y curl
+
+# Copiar publicación
 COPY --from=build /app/publish .
 
-# EXPONEMOS 8080 (puerto interno del contenedor)
-EXPOSE 8080
+# HEALTH CHECK (requerido para Render)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost:8080/health || exit 1
 
-# ENTRYPOINT: ejecuta la dll
+EXPOSE 8080
 ENTRYPOINT ["dotnet", "Products.Api.dll"]
 
 

@@ -10,18 +10,6 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// En LOCAL (Development): usa launchSettings.json
-// En NUBE (Render / Docker): Render define la variable PORT y nosotros la usamos
-if (!builder.Environment.IsDevelopment())
-{
-    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-
-    builder.WebHost.ConfigureKestrel(options =>
-    {
-        options.ListenAnyIP(int.Parse(port));
-    });
-}
-
 // switch connection
 var provider = builder.Configuration["DatabaseProvider"];
 var connectionString = provider switch

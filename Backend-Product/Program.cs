@@ -74,7 +74,7 @@ builder.Services.AddSwaggerGen(c =>
 
 var allowedOrigins = builder.Environment.IsDevelopment()
     ? new[] { "http://localhost:4200" } // Angular en local
-    : new[] { "https://app.midominio.com" };
+    : new[] { "https://salessystemfront.pages.dev" }; // Angular en producción (Cloudflare Pages)
 
 builder.Services.AddCors(options =>
 {

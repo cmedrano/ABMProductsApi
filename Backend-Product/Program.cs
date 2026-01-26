@@ -10,15 +10,18 @@ using Products.Infrastructure.Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// OBTENER PUERTO DE RENDER (requerido)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+// Configurar Kestrel SOLO si existe la variable PORT (p.e. Render)
+var portEnv = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(portEnv) && int.TryParse(portEnv, out var portNumber))
+{
+    builder.WebHost.UseKestrel()
+        .ConfigureKestrel(options =>
+        {
+            options.ListenAnyIP(portNumber);
+        });
 
-// Configuración de Kestrel para escuchar en el puerto de Render
-builder.WebHost.UseKestrel()
-    .ConfigureKestrel(serverOptions =>
-    {
-        serverOptions.ListenAnyIP(int.Parse(port));
-    });
+    builder.WebHost.UseUrls($"http://0.0.0.0:{portNumber}");
+}
 
 // switch connection
 var provider = builder.Configuration["DatabaseProvider"];
